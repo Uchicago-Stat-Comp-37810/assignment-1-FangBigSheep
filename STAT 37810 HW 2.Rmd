@@ -192,7 +192,7 @@ calcInterestRate <- function(i){
   return(c(i, iteration))
 }
 
-sprintf("Result: %f, iterations: %d", calcInterestRate(0.006)[1], calcInterestRate(0.006)[2])
+sprintf("Result: %f, iterations: %d", calcInterestRate(0.006)[1], round(calcInterestRate(0.006)[2]))
 ```
 
 Try other starting guess:

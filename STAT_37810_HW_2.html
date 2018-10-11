@@ -296,7 +296,7 @@ calcInterestRate(0.006)</code></pre>
   return(c(i, iteration))
 }
 
-sprintf(&quot;Result: %f, iterations: %d&quot;, calcInterestRate(0.006)[1], calcInterestRate(0.006)[2])</code></pre>
+sprintf(&quot;Result: %f, iterations: %d&quot;, calcInterestRate(0.006)[1], round(calcInterestRate(0.006)[2]))</code></pre>
 <pre><code>## [1] &quot;Result: 0.004954, iterations: 74&quot;</code></pre>
 <p>Try other starting guess:</p>
 <pre class="r"><code>for (i in -3: 3)
