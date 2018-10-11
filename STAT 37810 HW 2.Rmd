@@ -1,0 +1,493 @@
+---
+title: "STAT 37810 HW 2"
+author: "ZY Fang"
+date: "10/09/2018"
+output: html_document
+---
+
+# Section 4.1.1
+
+## Exercise 2
+
+### (a)
+Calculating ratios of successive terms in Fibonacci sequence.
+
+```{r}
+fib <- c(1: 32)
+ratio <- c(1: 30)
+fib[2] <- 1
+
+for (i in 1: 30){
+  fib[i + 2] <- fib[i] + fib[i + 1]
+  ratio[i] <- fib[i + 1] / fib[i]
+}
+
+ratio
+```
+
+The sequence seems to be converging to 1.618034.
+
+### (b)
+```{r}
+(1 + sqrt(5)) / 2
+```
+The sequence does converge to this ratio.
+
+**_Proof_**
+
+For Fibonacci sequence, we have $f_{n+2}=f_{n+1}+f_n$.
+
+Thus $f_{n+2}+\frac{\sqrt5-1}{2}f_{n+1}=\frac{\sqrt5+1}{2}f_{n+1} + f_n=\frac{\sqrt5+1}{2}(f_{n+1}+\frac{\sqrt5-1}{2}f_n)$.
+
+We know $f_1=f_2=1$, thus $f_2+\frac{\sqrt5-1}{2}f_1=\frac{\sqrt5+1}{2}$. Thus
+
+$$\begin{equation}
+f_{n+1}+\frac{\sqrt5-1}{2}f_n=(\frac{\sqrt5+1}{2})^n.
+\tag{1}\end{equation}$$
+
+Similarly we have $f_{n+2}+\frac{-1-\sqrt5}{2}f_{n+1}=\frac{1-\sqrt5}{2}f_{n+1} + f_n=\frac{1-\sqrt5}{2}(f_{n+1}+\frac{-1-\sqrt5}{2}f_n)$, and $f_2+\frac{-1-\sqrt5}{2}f_1=\frac{1-\sqrt5}{2}$.
+
+Therefore 
+$$\begin{equation}
+f_{n+1}+\frac{-1-\sqrt5}{2}f_n=(\frac{1-\sqrt5}{2})^n.
+\tag{2}\end{equation}$$
+
+Combine equation (1) and (2), we have $f_n=\frac{(\frac{\sqrt5+1}{2})^n-(\frac{1-\sqrt5}{2})^n}{\sqrt5}$, which yields $$\lim_{n\to\infty}\frac{f_{n+1}}{f_n}=\frac{\sqrt5+1}{2}.$$
+
+This completes the proof.
+
+
+
+## Exercise 3
+Test results of different code.
+
+### (a)
+```{r}
+answer <- 0
+for (j in 1: 5) answer <- answer + j
+answer
+```
+
+### (b)
+```{r}
+answer <- NULL
+for (j in 1: 5) answer <- c(answer, j)
+answer
+```
+
+### (c)
+```{r}
+answer <- 0
+for (j in 1: 5) answer <- c(answer, j)
+answer
+```
+
+### (d)
+```{r}
+answer <- 1
+for (j in 1: 5) answer <- answer * j
+answer
+```
+
+### (e)
+```{r}
+answer <- 3
+for (j in 1: 5) answer <- c(answer, (7 * answer[j]) %% 31)
+answer
+```
+
+
+
+# Section 4.1.2
+
+## Exercise 4
+```{r}
+calcInterestGIC <- function(G, years){
+  if (years <= 3)
+    return (G * ((1 + 0.04) ^ years - 1))
+  else
+    return (G * ((1 + 0.05) ^ years - 1))
+}
+
+```
+
+
+
+## Exercise 5
+```{r}
+calcReturnMortgage <- function(n, P, open){
+  if (open) i = 0.005
+  else      i = 0.0004
+  
+  return (P * i / (1 - (1 + i) ^ (-n)))
+}
+```
+
+
+
+# Section 4.1.3
+
+## Exercise 2
+Generate Fibonicci sequence using *Fibonacci* variable only.
+
+```{r}
+Fib1 <- 1
+Fib2 <- 1
+Fibonacci <- c(Fib1, Fib2)
+
+while(Fibonacci[length(Fibonacci)] < 300){
+  Fibonacci <- c(Fibonacci, sum(Fibonacci[(length(Fibonacci) - 1): length(Fibonacci)]))
+}
+Fibonacci
+```
+
+
+
+## Exercise 4
+Rewrite interest rate calculation by *while()* loop.
+
+```{r}
+calcInterestRate <- function(i){
+  record <- -1;
+  eps <- 1e-6
+  
+  while (abs(record - i) > eps){
+    record <- i
+    i <- (1 - (1 + i) ^ (-20)) / 19
+  }
+  
+  return(i)
+}
+
+
+calcInterestRate(0.006)
+```
+
+Try other starting guess:
+
+```{r}
+for (i in -3: 3)
+  print(calcInterestRate(10 ^ i))
+```
+
+No significant difference.
+
+
+
+## Exercise 5
+Calculate interest rate and count the number of iterations.
+
+```{r}
+calcInterestRate <- function(i){
+  record <- -1;
+  eps <- 1e-6
+  iteration <- 0;
+  
+  while (abs(record - i) > eps){
+    record <- i
+    i <- (1 - (1 + i) ^ (-20)) / 19
+    iteration <- iteration + 1
+  }
+  
+  return(c(i, iteration))
+}
+
+sprintf("Result: %f, iterations: %d", calcInterestRate(0.006)[1], calcInterestRate(0.006)[2])
+```
+
+Try other starting guess:
+
+```{r}
+for (i in -3: 3)
+  print(calcInterestRate(10 ^ i))
+```
+
+Different starting guess needs different number of iterations.
+
+
+
+# Section 4.1.5
+
+## Exercise 2
+
+### (a)
+Implement the sieve of Eratosthenes using a *while()* loop.
+
+```{r}
+Eratosthenes <- function(n) {
+  # Print prime numbers up to n
+  if (n >= 2) {
+    sieve <- seq(2, n)
+    primes <- c()
+    while (length(sieve) > 0) {
+      p <- sieve[1]
+      primes <- c(primes, p)
+      # After pushing back the minimal prime number
+      sieve = sieve[(sieve %% p) != 0]
+      # remove all numbers which can be divided by this prime number
+    }
+    return(primes)
+  } else {
+    stop("Input value of n should be at least 2")
+  }
+}
+```
+### (b)
+Once p >= sqrt(n), all remaining entries in *sieve* are prime.
+
+All remaining entries in *sieve* can not be divided by prime numbers less than $\sqrt{n}$, or it will be removed from *sieve*. Thus if a remaining entry is not prime, it has at least 2 prime factors that is larger than $\sqrt{n}$, so the entry must be larger than n, which results in contradiction. That proofs all remaining entries in *sieve* are prime.
+
+### (c)
+To take advantage of the result in (b), we add a few sentences in the *while()* loop.
+```{r}
+Eratosthenes <- function(n) {
+  # Print prime numbers up to n
+  if (n >= 2) {
+    sieve <- seq(2, n)
+    primes <- c()
+    while (length(sieve) > 0) {
+      p <- sieve[1]
+      primes <- c(primes, p)
+      # After pushing back the minimal prime number
+      sieve = sieve[(sieve %% p) != 0]
+      # Remove all numbers which can be divided by this prime number
+      
+      # If p >= sqrt(n), all remaining entries in sieve is prime
+      # Do not need further elimination, add all entries in sieve to prime
+      if (p >= sqrt(n)){
+        primes = c(primes, sieve);
+        break
+      }
+    }
+    return(primes)
+  } else {
+    stop("Input value of n should be at least 2")
+  }
+}
+```
+
+# Section 4.2.1
+
+## Exercise 2
+
+###(a)
+Write a function to compute the amount of money.
+```{r}
+compound.interest <- function(P, n, i.r) {
+  return (P * (1 + i.r) ^ n);
+}
+```
+
+### (b)
+Application in a real case, where Mr.Ng deposits \$1000, interest rate is 1% per month, and period is 30 months.
+```{r}
+compound.interest(1000, 30, 0.01)
+```
+
+## Exercise 3
+Bisection algorithm to calculate the zero of a user-supplied function *f* on a given interval $[a, b]$. It should guarantee that $f(a)f(b)\leq0$. The maximum of numerical error is given as *epsilon*.
+
+```{r}
+find_zero <- function(f, a, b, epsilon) {
+  m = (b + a) / 2
+  if (b - a < epsilon || abs(m) < 1e-9)
+    return (m)
+  
+  if (f(a) * f(m) < 0)
+    return (find_zero(f, a, m, epsilon))
+  else
+    return (find_zero(f, m, b, epsilon))
+  
+  if (abs(f(a)) < 1e-9)
+    return (a)
+  if (abs(f(b)) < 1e-9)
+    return (b)
+}
+
+# test case: function y = x - 1 on interval [-1, 2], epsilon = 1e-9
+find_zero(function(x) x - 1, -1, 2, 1e-9)
+```
+
+
+# Section 4.4
+
+## Exercise 1
+Compute factorial.
+```{r}
+factorial <- function(n) {
+  return (prod(1: n))
+}
+
+factorial(10)
+factorial(50)
+factorial(100)
+factorial(1000)
+```
+The result is not precise when n gets larger. It also causes the product to be *Inf* when n is really large. Obviously we are not satisfied about such result.
+
+High-precision product.
+```{r}
+# bigInt is a class that each digit is reserved and restored in a list
+# e.g. bigInt(321) = c(1, 2, 3)
+
+print.bigInteger <- function(bigInt) {
+  len <- length(bigInt)
+  result <- ''
+  
+  for (i in 1: len)
+    result <- paste(result, bigInt[len + 1 - i], sep = '')
+  
+  cat(result)
+  invisible(bigInt)
+}
+
+factorial.bigInteger <- function(n) {
+  ans.bigInt <- c(1)
+  for (i in 1: n) {
+    ans.bigInt <- ans.bigInt * i
+    up <- 0;
+    for (j in 1: length(ans.bigInt)){
+      ans.bigInt[j] <- ans.bigInt[j] + up
+      up <- floor(ans.bigInt[j] / 10)
+      ans.bigInt[j] <- ans.bigInt[j] - up * 10
+    }
+    while (up > 0){
+      ans.bigInt <- c(ans.bigInt, up %% 10)
+      up <- floor(up / 10)
+    }
+  }
+  class(ans.bigInt) <- "bigInteger"
+    
+  return (ans.bigInt)
+}
+
+factorial.bigInteger(10)
+factorial.bigInteger(50)
+factorial.bigInteger(100)
+factorial.bigInteger(1000)
+```
+
+
+## Exercise 2
+
+### (a)
+Compute the binomial coefficient.
+```{r}
+binomialCoef <- function(n, m) {
+  return (factorial(n) / factorial(m) / factorial(n - m))
+}
+```
+
+### (b)
+```{r}
+binomialCoef(4, 2)
+binomialCoef(50, 20)
+binomialCoef(5000, 2000)
+```
+
+### (c)
+Improve binomial coefficient computing.
+```{r}
+improvedBinomialCoef <- function(n, m) {
+  numExp = sum(log((m + 1): n)) - sum(log(1: (n - m)))
+  if (exp(numExp) < Inf)
+    return (exp(numExp))
+  else
+    return (paste('e ^', as.character(numExp)))
+}
+```
+
+### (d)
+```{r}
+improvedBinomialCoef(4, 2)
+improvedBinomialCoef(50, 20)
+improvedBinomialCoef(5000, 2000)
+```
+# Chapter 4
+
+## Exercise 1
+RANDU striking pattern.
+```{r}
+Randu <- function(N, x) {
+  lst <- c(1: N)
+  for (i in 1: N) {
+    x <- (x * 65539) %% (2 ^ 31)
+    lst[i] <- round(x / (2 ^ 31), digits = 3)
+  }
+  
+  return (lst)
+}
+
+len = 300000
+
+myList <- Randu(len, 142857)
+row1 <- c()
+row2 <- c()
+row3 <- c()
+for (i in 1: len) {
+  if (i %% 3 == 1) row1 <- c(row1, myList[i])
+  if (i %% 3 == 2) row2 <- c(row2, myList[i])
+  if (i %% 3 == 0) row3 <- c(row3, myList[i])
+}
+
+for (j in 1: 9) {
+  x <- j * 0.1
+  record2 <- c(1: 100000)
+  record3 <- c(1: 100000)
+  iter <- 0
+  
+  for(i in 1: (len / 3)) {
+    if (abs(x - row1[i]) < 1e-3) {
+      iter <- iter + 1
+      record2[iter] <- row2[i]
+      record3[iter] <- row3[i]
+    }
+  }
+  if(iter > 0) {
+    sprintf("j=%d", j)
+    plot(record2[1: iter], record3[1: iter])
+  }
+}
+```
+
+
+## Exercise 2
+Evaluate polynomials. Vector *P* contains the polynomial coefficients, i.e.$P[i]=c_{n+1-i}$.
+```{r}
+directpoly <- function(P, x) {
+  ans <- 0
+  for (i in 1: length(P)) 
+    ans <- ans + P[i] * x ^ (i - 1)
+  
+  return (ans)
+}
+
+#test this function
+P <- c(1, 2, 1)
+# y = x^2 + 2x + 1
+x <- 1
+directpoly(P, x)
+```
+
+## Exercise 3
+
+```{r}
+hornerpoly <- function(P, x) {
+  ans <- c()
+  for (x_value in x) {
+      a <- P[1]
+      for (i in 2: length(P))
+        a <- a * x_value + P[i]
+      
+      ans <- c(ans, a)
+  }
+  return (ans)
+}
+
+#test this function
+P <- c(1, 2, 1)
+# y = x^2 + 2x + 1
+x <- c(-2, -1, 0, 1, 2)
+hornerpoly(P, x)
+```
+
