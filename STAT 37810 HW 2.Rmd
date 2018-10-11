@@ -1,7 +1,7 @@
 ---
 title: "STAT 37810 HW 2"
 author: "ZY Fang"
-date: "10/09/2018"
+date: "10/11/2018"
 output: html_document
 ---
 
@@ -192,14 +192,18 @@ calcInterestRate <- function(i){
   return(c(i, iteration))
 }
 
-sprintf("Result: %f, iterations: %d", calcInterestRate(0.006)[1], round(calcInterestRate(0.006)[2]))
+calcResult <- calcInterestRate(0.006)
+sprintf("Result: %f, iterations: %d", calcResult[1], calcResult[2])
 ```
 
 Try other starting guess:
 
 ```{r}
-for (i in -3: 3)
-  print(calcInterestRate(10 ^ i))
+for (i in -3: 3){
+  calcResult <- calcInterestRate(10 ^ i)
+  cat(sprintf("Start from %f, result: %f, iterations: %d", 10 ^ i, calcResult[1], calcResult[2]), sep = '\n')
+}
+  
 ```
 
 Different starting guess needs different number of iterations.
@@ -418,7 +422,7 @@ Randu <- function(N, x) {
   return (lst)
 }
 
-len = 300000
+len = 3000000
 
 myList <- Randu(len, 142857)
 row1 <- c()
@@ -444,8 +448,7 @@ for (j in 1: 9) {
     }
   }
   if(iter > 0) {
-    sprintf("j=%d", j)
-    plot(record2[1: iter], record3[1: iter])
+    plot(record2[1: iter], record3[1: iter], main = paste("x = ", as.character(x)), xlab = "the 2nd column", ylab = "the 3rd column")
   }
 }
 ```
